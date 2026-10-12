@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="alu_quote_view_tree" model="ir.ui.view">
+        <field name="name">alu.quote.tree</field>
+        <field name="model">alu.quote</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="date"/>
+                <field name="total_weight"/>
+                <field name="total_amount"/>
+                <field name="state" widget="badge"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="alu_quote_view_form" model="ir.ui.view">
+        <field name="name">alu.quote.form</field>
+        <field name="model">alu.quote</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state == 'cancelled'"/>
+                    <button name="action_draft" string="Back to Draft" type="object"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="partner_id"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Profiles">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <tree editable="bottom">
+                                    <field name="profile_name"/>
+                                    <field name="length_m"/>
+                                    <field name="quantity"/>
+                                    <field name="weight_per_m"/>
+                                    <field name="price_per_kg"/>
+                                    <field name="weight" sum="Total"/>
+                                    <field name="subtotal" sum="Total"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="total_weight"/>
+                                <field name="total_amount"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="alu_quote_view_search" model="ir.ui.view">
+        <field name="name">alu.quote.search</field>
+        <field name="model">alu.quote</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Customer" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="alu_quote_action" model="ir.actions.act_window">
+        <field name="name">Quotes</field>
+        <field name="res_model">alu.quote</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="alu_quote_menu_root" name="Alu Quotes" sequence="50"/>
+    <menuitem id="alu_quote_menu_quotes" name="Quotes"
+              parent="alu_quote_menu_root" action="alu_quote_action"/>
+</odoo>
